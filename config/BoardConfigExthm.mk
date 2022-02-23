@@ -1,3 +1,6 @@
+# Recovery
+BOARD_USES_FULL_RECOVERY_IMAGE ?= true
+
 # Kernel
 include vendor/exthm/config/BoardConfigKernel.mk
 
