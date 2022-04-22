@@ -145,8 +145,21 @@ else
         $(warning **********************************************************)
         $(error "NO KERNEL CONFIG")
     else
-        FULL_KERNEL_BUILD := true
-        KERNEL_BIN := $(TARGET_PREBUILT_INT_KERNEL)
+        ifneq ($(TARGET_FORCE_PREBUILT_KERNEL),)
+            $(warning **********************************************************)
+            $(warning * Kernel source found and configuration was defined      *)
+            $(warning * but prebuilt kernel is being enforced.                 *)
+            $(warning * While there may be a good reason for this,             *)
+            $(warning * THIS IS NOT ADVISED.                                   *)
+            $(warning * Please configure your device to build the kernel       *)
+            $(warning * from source by unsetting TARGET_FORCE_PREBUILT_KERNEL  *)
+            $(warning **********************************************************)
+            FULL_KERNEL_BUILD := false
+            KERNEL_BIN := $(TARGET_PREBUILT_KERNEL)
+        else
+            FULL_KERNEL_BUILD := true
+            KERNEL_BIN := $(TARGET_PREBUILT_INT_KERNEL)
+        endif
     endif
 endif
 
@@ -238,7 +251,7 @@ endef
 # $(3): mount point
 # $(4): staging dir
 # Depmod requires a well-formed kernel version so 0.0 is used as a placeholder.
-define build-image-kernel-modules-acme
+define build-image-kernel-modules-exthm
     rm -rf $(2)/lib/modules
     mkdir -p $(2)/lib/modules
     cp $(1) $(2)/lib/modules/
@@ -290,7 +303,7 @@ $(TARGET_PREBUILT_INT_KERNEL): $(KERNEL_CONFIG) $(DEPMOD)
 				$(eval p := $(subst :,$(space),$(s))) \
 				; mv $$(find $$kernel_modules_dir -name $(word 1,$(p))) $$kernel_modules_dir/$(word 2,$(p))); \
 			modules=$$(find $$kernel_modules_dir -type f -name '*.ko'); \
-			($(call build-image-kernel-modules-acme,$$modules,$(KERNEL_MODULES_OUT),$(KERNEL_MODULE_MOUNTPOINT)/,$(KERNEL_DEPMOD_STAGING_DIR))); \
+			($(call build-image-kernel-modules-exthm,$$modules,$(KERNEL_MODULES_OUT),$(KERNEL_MODULE_MOUNTPOINT)/,$(KERNEL_DEPMOD_STAGING_DIR))); \
 		fi
 
 .PHONY: kerneltags
