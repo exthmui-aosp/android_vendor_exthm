@@ -10,6 +10,9 @@ $(call inherit-product, vendor/exthm/overlay/overlay.mk)
 # exTHmUI version
 -include vendor/exthm/config/version.mk
 
+# Sounds
+include vendor/exthm/config/sounds.mk
+
 # Required packages
 PRODUCT_PACKAGES += \
     LatinIME \
