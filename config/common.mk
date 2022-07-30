@@ -13,7 +13,6 @@ $(call inherit-product, vendor/exthm/overlay/overlay.mk)
 # Required packages
 PRODUCT_PACKAGES += \
     LatinIME \
-    Launcher3QuickStep \
     ThemePicker
 
 # Filesystems tools
