@@ -23,6 +23,10 @@ PRODUCT_PACKAGES += \
     mkfs.ntfs \
     mount.ntfs
 
+# Media
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    media.recorder.show_manufacturer_and_model=true
+
 # Only logging privapp-permissions whitelist
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.control_privapp_permissions=log
