@@ -8,4 +8,4 @@
 $(call inherit-product, vendor/exthm/overlay/overlay.mk)
 
 # exTHmUI version
--include vendor/exthm/build/tools/version.mk
+-include vendor/exthm/config/version.mk
