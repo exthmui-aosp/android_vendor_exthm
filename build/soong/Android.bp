@@ -1,12 +1,4 @@
 bootstrap_go_package {
-    name: "soong-exthm",
-    pkgPath: "exthm/soong/android",
-    srcs: [
-        "android/variable.go",
-    ],
-}
-
-bootstrap_go_package {
     name: "soong-exthm-generator",
     pkgPath: "exthm/soong/generator",
     deps: [
