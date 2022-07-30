@@ -4,7 +4,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Version
 EXTHM_VERSION := 13.0
+EXTHM_BRANCH := Tenshi
+EXTHM_BUILD_TYPE := DEBUG
+EXTHM_DATE := $(shell date -u +%Y%m%d)
+EXTHM_DEVICE := $(shell echo "$(TARGET_PRODUCT)" | cut -d '_' -f 2,3)
 
-ADDITIONAL_SYSTEM_PROPERTIES += \
-    ro.build.version.custom=$(EXTHM_VERSION)
+
+ifeq ($(IS_RELEASE), true)
+    EXTHM_BUILD_TYPE := RELEASE
+endif
+
+EXTHM_VERSION := exTHmUI-$(EXTHM_VERSION)-$(EXTHM_BRANCH)-$(EXTHM_DEVICE)-$(EXTHM_BUILD_TYPE)-$(EXTHM_DATE)
+EXTHM_DISPLAY_VERSION := exTHmUI-$(EXTHM_VERSION)-$(EXTHM_BRANCH)-$(EXTHM_DATE)
+
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    ro.exthm.version=$(EXTHM_VERSION) \
+    ro.exthm.build.version=$(EXTHM_DISPLAY_VERSION)
