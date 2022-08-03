@@ -16,7 +16,8 @@ include vendor/exthm/config/sounds.mk
 # Required packages
 PRODUCT_PACKAGES += \
     LatinIME \
-    ThemePicker
+    ThemePicker \
+    ViaBrowser
 
 # Filesystems tools
 PRODUCT_PACKAGES += \
