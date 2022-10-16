@@ -11,7 +11,6 @@ EXTHM_BUILD_TYPE := DEBUG
 EXTHM_DATE := $(shell date -u +%Y%m%d)
 EXTHM_DEVICE := $(shell echo "$(TARGET_PRODUCT)" | cut -d '_' -f 2,3)
 
-
 ifeq ($(IS_RELEASE), true)
     EXTHM_BUILD_TYPE := RELEASE
 endif
@@ -21,4 +20,6 @@ EXTHM_DISPLAY_VERSION := exTHmUI-$(EXTHM_VERSION)-$(EXTHM_BRANCH)-$(EXTHM_DATE)
 
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.exthm.version=$(EXTHM_VERSION) \
-    ro.exthm.build.version=$(EXTHM_DISPLAY_VERSION)
+    ro.exthm.branch=$(EXTHM_BRANCH) \
+    ro.exthm.build.version=$(EXTHM_DISPLAY_VERSION) \
+    ro.exthm.build.type=$(EXTHM_BUILD_TYPE)
