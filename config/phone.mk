@@ -15,4 +15,5 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     messaging \
     Stk \
-    YellowPage
+    YellowPage \
+    QrCodeScanner
