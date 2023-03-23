@@ -13,7 +13,7 @@ $(call inherit-product, vendor/exthm/overlay/overlay.mk)
 # Sounds
 include vendor/exthm/config/sounds.mk
 
-$(call inherit-product, vendor/gms/config.mk)
+$(call inherit-product-if-exists, vendor/gms/config.mk)
 
 # Required packages
 PRODUCT_PACKAGES += \
