@@ -28,6 +28,11 @@ PRODUCT_PACKAGES += \
     mkfs.ntfs \
     mount.ntfs
 
+# Bootanimation
+PRODUCT_PACKAGES += \
+    bootanimation.zip \
+    bootanimation-dark.zip
+
 # Media
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     media.recorder.show_manufacturer_and_model=true
