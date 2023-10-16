@@ -20,7 +20,7 @@ UM_5_4_FAMILY := $(LAHAINA) $(HOLI)
 UM_5_10_FAMILY := $(TARO)
 UM_5_15_FAMILY := $(KALAMA)
 
-UM_PLATFORMS := \ 
+UM_PLATFORMS := \
     $(UM_3_18_FAMILY) \
     $(UM_4_4_FAMILY) \
     $(UM_4_9_FAMILY) \
