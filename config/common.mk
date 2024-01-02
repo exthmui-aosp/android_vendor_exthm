@@ -13,6 +13,14 @@ $(call inherit-product, vendor/exthm/overlay/overlay.mk)
 # Sounds
 include vendor/exthm/config/sounds.mk
 
+# Include {Lato,Rubik} fonts
+$(call inherit-product-if-exists, external/google-fonts/lato/fonts.mk)
+$(call inherit-product-if-exists, external/google-fonts/rubik/fonts.mk)
+
+# Include LXGWWenKai fonts
+$(call inherit-product-if-exists, vendor/exthm/prebuilt/fonts/LXGWWenKai/fonts.mk)
+
+# Include GMS packages
 $(call inherit-product-if-exists, vendor/gms/config.mk)
 
 # Required packages
@@ -69,6 +77,13 @@ PRODUCT_PACKAGES += \
     IconShapeTaperedRectOverlay \
     IconShapeTeardropOverlay \
     IconShapeVesselOverlay
+
+# Fonts
+PRODUCT_PACKAGES += \
+    fonts_customization.xml \
+    FontLatoOverlay \
+    FontRubikOverlay \
+    FontLXWKOverlay
 
 # Media
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
