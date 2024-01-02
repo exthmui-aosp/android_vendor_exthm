@@ -19,6 +19,7 @@ $(call inherit-product-if-exists, vendor/gms/config.mk)
 PRODUCT_PACKAGES += \
     LatinIME \
     ThemePicker \
+    ThemesStub \
     ViaBrowser
 
 # Filesystems tools
