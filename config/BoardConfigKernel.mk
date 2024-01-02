@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 The LineageOS Project
+# Copyright (C) 2018-2023 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,8 +27,12 @@
 #                                                      x86_64-linux-android- for x86
 #
 #   TARGET_KERNEL_CLANG_COMPILE        = Compile kernel with clang, defaults to true
-#   TARGET_KERNEL_NEW_GCC_COMPILE      = Compile kernel with newer version GCC, defaults to false
+#   TARGET_KERNEL_CLANG_VERSION        = Clang prebuilts version, optional, defaults to clang-stable
+#   TARGET_KERNEL_CLANG_PATH           = Clang prebuilts path, optional
+#
 #   TARGET_KERNEL_LLVM_BINUTILS        = Use LLVM binutils, defaults to true
+#   TARGET_KERNEL_NO_GCC               = Fully compile the kernel without GCC.
+#                                        Defaults to false
 #   TARGET_KERNEL_VERSION              = Reported kernel version in top level kernel
 #                                        makefile. Can be overriden in device trees
 #                                        in the event of prebuilt kernel.
@@ -60,38 +64,60 @@ TARGET_KERNEL_SOURCE ?= $(TARGET_AUTO_KDIR)
 
 TARGET_KERNEL_ARCH := $(strip $(TARGET_KERNEL_ARCH))
 ifeq ($(TARGET_KERNEL_ARCH),)
-KERNEL_ARCH := $(TARGET_ARCH)
+    KERNEL_ARCH := $(TARGET_ARCH)
 else
-KERNEL_ARCH := $(TARGET_KERNEL_ARCH)
+    KERNEL_ARCH := $(TARGET_KERNEL_ARCH)
 endif
 
 KERNEL_VERSION := $(shell grep -s "^VERSION = " $(TARGET_KERNEL_SOURCE)/Makefile | awk '{ print $$3 }')
 KERNEL_PATCHLEVEL := $(shell grep -s "^PATCHLEVEL = " $(TARGET_KERNEL_SOURCE)/Makefile | awk '{ print $$3 }')
 TARGET_KERNEL_VERSION ?= $(shell echo $(KERNEL_VERSION)"."$(KERNEL_PATCHLEVEL))
 
-CLANG_PREBUILTS := $(BUILD_TOP)/prebuilts/clang/host/$(HOST_PREBUILT_TAG)/clang-r450784d
-
-ifeq (,$(filter 5.10, $(TARGET_KERNEL_VERSION)))
-GCC_PREBUILTS := $(BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)
-
-ifeq ($(TARGET_KERNEL_NEW_GCC_COMPILE),true)
-    ifeq ($(TARGET_KERNEL_CLANG_COMPILE),true)
-        $(error TARGET_KERNEL_NEW_GCC_COMPILE cannot be used with TARGET_KERNEL_CLANG_COMPILE!)
+# 5.10+ can fully compile without GCC by default
+ifneq ($(KERNEL_VERSION),)
+    ifeq ($(shell expr $(KERNEL_VERSION) \>= 5), 1)
+        ifeq ($(shell expr $(KERNEL_PATCHLEVEL) \>= 10), 1)
+            TARGET_KERNEL_NO_GCC ?= true
+        endif
     endif
-    # arm64 toolchain
-    KERNEL_TOOLCHAIN_arm64 := $(GCC_PREBUILTS)/aarch64/aarch64-elf/bin
-    KERNEL_TOOLCHAIN_PREFIX_arm64 := aarch64-elf-
-    # arm toolchain
-    KERNEL_TOOLCHAIN_arm := $(GCC_PREBUILTS)/arm/arm-eabi/bin
-    KERNEL_TOOLCHAIN_PREFIX_arm := arm-eabi-
+endif
+
+ifeq ($(TARGET_KERNEL_NO_GCC), true)
+    KERNEL_NO_GCC := true
+endif
+
+ifneq ($(TARGET_KERNEL_CLANG_VERSION),)
+    KERNEL_CLANG_VERSION := clang-$(TARGET_KERNEL_CLANG_VERSION)
 else
+    # Use the default version of clang if TARGET_KERNEL_CLANG_VERSION hasn't been set by the device config
+    KERNEL_CLANG_VERSION := clang-r450784d
+endif
+TARGET_KERNEL_CLANG_PATH ?= $(BUILD_TOP)/prebuilts/clang/host/$(HOST_PREBUILT_TAG)/$(KERNEL_CLANG_VERSION)
+
+ifneq ($(USE_CCACHE),)
+    ifneq ($(CCACHE_EXEC),)
+        # Android 10+ deprecates use of a build ccache. Only system installed ones are now allowed
+        CCACHE_BIN := $(CCACHE_EXEC)
+    endif
+endif
+
+# Clear this first to prevent accidental poisoning from env
+KERNEL_MAKE_FLAGS :=
+
+# Add back threads, ninja cuts this to $(getconf _NPROCESSORS_ONLN)/2
+KERNEL_MAKE_FLAGS += -j$(shell getconf _NPROCESSORS_ONLN)
+
+TOOLS_PATH_OVERRIDE := \
+    PERL5LIB=$(BUILD_TOP)/prebuilts/tools-exthm/common/perl-base
+
+ifneq ($(KERNEL_NO_GCC), true)
+    GCC_PREBUILTS := $(BUILD_TOP)/prebuilts/gcc/$(HOST_PREBUILT_TAG)
     # arm64 toolchain
     KERNEL_TOOLCHAIN_arm64 := $(GCC_PREBUILTS)/aarch64/aarch64-linux-android-4.9/bin
     KERNEL_TOOLCHAIN_PREFIX_arm64 := aarch64-linux-android-
     # arm toolchain
     KERNEL_TOOLCHAIN_arm := $(GCC_PREBUILTS)/arm/arm-linux-androideabi-4.9/bin
     KERNEL_TOOLCHAIN_PREFIX_arm := arm-linux-androidkernel-
-endif
     # x86 toolchain
     KERNEL_TOOLCHAIN_x86 := $(GCC_PREBUILTS)/x86/x86_64-linux-android-4.9/bin
     KERNEL_TOOLCHAIN_PREFIX_x86 := x86_64-linux-android-
@@ -138,39 +164,36 @@ endif
         endif
     endif
 
-    ifeq ($(HOST_OS),darwin)
-        KERNEL_MAKE_FLAGS += HOSTCFLAGS="-I$(BUILD_TOP)/external/elfutils/libelf -I/usr/local/opt/openssl/include" HOSTLDFLAGS="-L/usr/local/opt/openssl/lib -fuse-ld=lld"
-    else
-        KERNEL_MAKE_FLAGS += CPATH="/usr/include:/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/usr/lib/x86_64-linux-gnu -L/usr/lib64 -fuse-ld=lld"
-    endif
-
+    KERNEL_MAKE_FLAGS += CPATH="/usr/include:/usr/include/x86_64-linux-gnu" HOSTLDFLAGS="-L/usr/lib/x86_64-linux-gnu -L/usr/lib64 -fuse-ld=lld"
 
     ifeq ($(KERNEL_ARCH),arm64)
         # Add 32-bit GCC to PATH so that arm-linux-androidkernel-as is available for CONFIG_COMPAT_VDSO
-        TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-extras/$(HOST_PREBUILT_TAG)/bin:$(KERNEL_TOOLCHAIN_arm):$$PATH
+        TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-exthm/$(HOST_PREBUILT_TAG)/bin:$(KERNEL_TOOLCHAIN_arm):$$PATH
     else
-        TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-extras/$(HOST_PREBUILT_TAG)/bin:$$PATH
+        TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-exthm/$(HOST_PREBUILT_TAG)/bin:$$PATH
     endif
+
     # Set the full path to the clang command and LLVM binutils
-    KERNEL_MAKE_FLAGS += HOSTCC=$(CLANG_PREBUILTS)/bin/clang
-    KERNEL_MAKE_FLAGS += HOSTCXX=$(CLANG_PREBUILTS)/bin/clang++
+    KERNEL_MAKE_FLAGS += HOSTCC=$(TARGET_KERNEL_CLANG_PATH)/bin/clang
+    KERNEL_MAKE_FLAGS += HOSTCXX=$(TARGET_KERNEL_CLANG_PATH)/bin/clang++
     ifneq ($(TARGET_KERNEL_CLANG_COMPILE), false)
         ifneq ($(TARGET_KERNEL_LLVM_BINUTILS), false)
-            KERNEL_MAKE_FLAGS += LD=$(CLANG_PREBUILTS)/bin/ld.lld
-            KERNEL_MAKE_FLAGS += AR=$(CLANG_PREBUILTS)/bin/llvm-ar
+            KERNEL_MAKE_FLAGS += LD=$(TARGET_KERNEL_CLANG_PATH)/bin/ld.lld
+            KERNEL_MAKE_FLAGS += AR=$(TARGET_KERNEL_CLANG_PATH)/bin/llvm-ar
         endif
     endif
 else
     KERNEL_MAKE_FLAGS += HOSTCFLAGS="--sysroot=$(BUILD_TOP)/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8/sysroot -I$(BUILD_TOP)/prebuilts/kernel-build-tools/linux-x86/include"
     KERNEL_MAKE_FLAGS += HOSTLDFLAGS="--sysroot=$(BUILD_TOP)/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8/sysroot -Wl,-rpath,$(BUILD_TOP)/prebuilts/kernel-build-tools/linux-x86/lib64 -L $(BUILD_TOP)/prebuilts/kernel-build-tools/linux-x86/lib64 -fuse-ld=lld --rtlib=compiler-rt"
-    TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-extras/$(HOST_PREBUILT_TAG)/bin:$(CLANG_PREBUILTS)/bin:$$PATH
+
+    TOOLS_PATH_OVERRIDE += PATH=$(BUILD_TOP)/prebuilts/tools-exthm/$(HOST_PREBUILT_TAG)/bin:$(TARGET_KERNEL_CLANG_PATH)/bin:$$PATH
 endif
 
 # Set DTBO image locations so the build system knows to build them
 ifeq (true,$(filter true, $(TARGET_NEEDS_DTBOIMAGE) $(BOARD_KERNEL_SEPARATED_DTBO)))
-TARGET_KERNEL_DTBO_PREFIX ?=
-TARGET_KERNEL_DTBO ?= dtbo.img
-BOARD_PREBUILT_DTBOIMAGE ?= $(TARGET_OUT_INTERMEDIATES)/DTBO_OBJ/arch/$(KERNEL_ARCH)/boot/$(TARGET_KERNEL_DTBO_PREFIX)$(TARGET_KERNEL_DTBO)
+    TARGET_KERNEL_DTBO_PREFIX ?=
+    TARGET_KERNEL_DTBO ?= dtbo.img
+    BOARD_PREBUILT_DTBOIMAGE ?= $(TARGET_OUT_INTERMEDIATES)/DTBO_OBJ/arch/$(KERNEL_ARCH)/boot/$(TARGET_KERNEL_DTBO_PREFIX)$(TARGET_KERNEL_DTBO)
 endif
 
 # Set the default dtb target
@@ -183,18 +206,15 @@ TARGET_KERNEL_EXT_MODULES ?=
 # Set use the full path to the make command
 KERNEL_MAKE_CMD := $(BUILD_TOP)/prebuilts/build-tools/$(HOST_PREBUILT_TAG)/bin/make
 
-# Set the full path to the clang command
-KERNEL_MAKE_FLAGS += HOSTCC=$(CLANG_PREBUILTS)/bin/clang
-KERNEL_MAKE_FLAGS += HOSTCXX=$(CLANG_PREBUILTS)/bin/clang++
-
 # Use LLVM's substitutes for GNU binutils
 ifneq ($(TARGET_KERNEL_CLANG_COMPILE), false)
-ifneq ($(TARGET_KERNEL_LLVM_BINUTILS), false)
-    KERNEL_MAKE_FLAGS += LLVM=1 LLVM_IAS=1
-    KERNEL_MAKE_FLAGS += LD=$(CLANG_PREBUILTS)/bin/ld.lld
-    KERNEL_MAKE_FLAGS += AR=$(CLANG_PREBUILTS)/bin/llvm-ar
+    ifneq ($(TARGET_KERNEL_LLVM_BINUTILS), false)
+        KERNEL_MAKE_FLAGS += LLVM=1 LLVM_IAS=1
+    endif
 endif
-endif
+
+# Pass prebuilt LZ4 path
+KERNEL_MAKE_FLAGS += LZ4=$(BUILD_TOP)/prebuilts/kernel-build-tools/linux-x86/bin/lz4
 
 # Since Linux 4.16, flex and bison are required
 KERNEL_MAKE_FLAGS += LEX=$(BUILD_TOP)/prebuilts/build-tools/$(HOST_PREBUILT_TAG)/bin/flex
@@ -202,10 +222,13 @@ KERNEL_MAKE_FLAGS += YACC=$(BUILD_TOP)/prebuilts/build-tools/$(HOST_PREBUILT_TAG
 KERNEL_MAKE_FLAGS += M4=$(BUILD_TOP)/prebuilts/build-tools/$(HOST_PREBUILT_TAG)/bin/m4
 TOOLS_PATH_OVERRIDE += BISON_PKGDATADIR=$(BUILD_TOP)/prebuilts/build-tools/common/bison
 
+# Since Linux 5.10, pahole is required
+KERNEL_MAKE_FLAGS += PAHOLE=$(BUILD_TOP)/prebuilts/kernel-build-tools/linux-x86/bin/pahole
+
 # Set the out dir for the kernel's O= arg
 # This needs to be an absolute path, so only set this if the standard out dir isn't used
 OUT_DIR_PREFIX := $(shell echo $(OUT_DIR) | sed -e 's|/target/.*$$||g')
 KERNEL_BUILD_OUT_PREFIX :=
 ifeq ($(OUT_DIR_PREFIX),out)
-KERNEL_BUILD_OUT_PREFIX := $(BUILD_TOP)/
+    KERNEL_BUILD_OUT_PREFIX := $(BUILD_TOP)/
 endif
