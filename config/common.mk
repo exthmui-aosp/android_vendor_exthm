@@ -28,6 +28,7 @@ PRODUCT_PACKAGES += \
     LatinIME \
     ThemePicker \
     ThemesStub \
+    SetupWizard \
     ViaBrowser
 
 # Filesystems tools
@@ -72,6 +73,7 @@ PRODUCT_PACKAGES += \
     IconPackVictorSystemUIOverlay \
     IconShapePebbleOverlay \
     IconShapeRoundedRectOverlay \
+    IconShapeBigRoundedRectOverlay \
     IconShapeSquareOverlay \
     IconShapeSquircleOverlay \
     IconShapeTaperedRectOverlay \
