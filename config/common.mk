@@ -23,6 +23,10 @@ $(call inherit-product-if-exists, vendor/exthm/prebuilt/fonts/LXGWWenKai/fonts.m
 # Include GMS packages
 $(call inherit-product-if-exists, vendor/gms/config.mk)
 
+# Some permissions
+PRODUCT_COPY_FILES += \
+    vendor/exthm/config/permissions/privapp-permissions-exthm.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-exthm.xml
+
 # Required packages
 PRODUCT_PACKAGES += \
     LatinIME \
