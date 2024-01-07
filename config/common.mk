@@ -33,6 +33,7 @@ PRODUCT_PACKAGES += \
     ThemePicker \
     ThemesStub \
     SetupWizard \
+    ParallelSpace \
     ViaBrowser
 
 # Filesystems tools
