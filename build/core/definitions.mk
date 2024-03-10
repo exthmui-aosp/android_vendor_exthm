@@ -7,6 +7,3 @@ endef
 
 # Include board/platform macros
 include vendor/exthm/build/core/utils.mk
-
-# Include vendor platform definitions
-include vendor/exthm/build/core/vendor/*.mk
