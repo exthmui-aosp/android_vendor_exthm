@@ -16,5 +16,4 @@ PRODUCT_PACKAGES += \
     messaging \
     Stk \
     YellowPage \
-    QrCodeScanner \
     Updater

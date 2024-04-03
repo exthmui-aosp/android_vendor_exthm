@@ -67,6 +67,6 @@
     <string name="config_wallpaperCropperPackage" translatable="false">com.android.wallpaper</string>
 
      <!-- Default component for QR code scanner -->
-    <string name="config_defaultQrCodeComponent">net.hearnsoft.qrcodescanner/.QRCodeScannerActivity</string>
+    <string name="config_defaultQrCodeComponent">org.lineageos.aperture/.QrScannerActivity</string>
 
 </resources>
