@@ -33,6 +33,7 @@ PRODUCT_PACKAGES += \
     ThemePicker \
     ThemesStub \
     SetupWizard \
+    Glimpse \
     ViaBrowser
 
 # Filesystems tools
