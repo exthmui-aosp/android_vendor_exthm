@@ -36,6 +36,11 @@ PRODUCT_PACKAGES += \
     Glimpse \
     ViaBrowser
 
+ifneq ($(PRODUCT_NO_CAMERA),true)
+PRODUCT_PACKAGES += \
+    Aperture
+endif
+
 # Filesystems tools
 PRODUCT_PACKAGES += \
     fsck.ntfs \
