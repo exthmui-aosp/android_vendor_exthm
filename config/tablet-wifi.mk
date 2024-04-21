@@ -6,3 +6,8 @@
 
 # Inherit common exTHmUI stuff
 $(call inherit-product, vendor/exthm/config/common.mk)
+
+# Settings
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.settings.large_screen_opt.enabled=true
+
