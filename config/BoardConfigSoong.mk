@@ -53,6 +53,7 @@ SOONG_CONFIG_exthmGlobalVars += \
     target_trust_usb_control_disable \
     uses_egl_display_array \
     uses_oplus_camera \
+    uses_oplus_touch \
     uses_nothing_camera
 
 SOONG_CONFIG_NAMESPACES += exthmQcomVars
@@ -76,6 +77,7 @@ SOONG_CONFIG_exthmGlobalVars_gralloc_handle_has_ubwcp_format := $(TARGET_GRALLOC
 SOONG_CONFIG_exthmGlobalVars_sdmcore_has_is_display_hw_available_func := $(TARGET_SDMCORE_HAS_IS_DISPLAY_HW_AVAILABLE_FUNC)
 SOONG_CONFIG_exthmGlobalVars_uses_egl_display_array := $(TARGET_USES_EGL_DISPLAY_ARRAY)
 SOONG_CONFIG_exthmGlobalVars_uses_oplus_camera := $(TARGET_USES_OPLUS_CAMERA)
+SOONG_CONFIG_exthmGlobalVars_uses_oplus_touch := $(TARGET_USES_OPLUS_TOUCH)
 SOONG_CONFIG_exthmGlobalVars_uses_nothing_camera := $(TARGET_USES_NOTHING_CAMERA)
 SOONG_CONFIG_exthmQcomVars_supports_extended_compress_format := $(AUDIO_FEATURE_ENABLED_EXTENDED_COMPRESS_FORMAT)
 SOONG_CONFIG_exthmQcomVars_uses_pre_uplink_features_netmgrd := $(TARGET_USES_PRE_UPLINK_FEATURES_NETMGRD)
