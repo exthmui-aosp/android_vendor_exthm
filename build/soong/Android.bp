@@ -419,6 +419,25 @@ health_charging_control {
 }
 
 soong_config_module_type {
+    name: "power_libperfmgr",
+    module_type: "cc_defaults",
+    config_namespace: "exthmGlobalVars",
+    value_variables: ["target_power_libperfmgr_mode_extension_lib"],
+    properties: [
+        "whole_static_libs",
+    ],
+}
+
+power_libperfmgr {
+    name: "power_libperfmgr_defaults",
+    soong_config_variables: {
+        target_power_libperfmgr_mode_extension_lib: {
+            whole_static_libs: ["%s"],
+        },
+    },
+}
+
+soong_config_module_type {
     name: "extended_compress_format",
     module_type: "cc_defaults",
     config_namespace: "exthmQcomVars",
