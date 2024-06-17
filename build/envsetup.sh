@@ -8,6 +8,7 @@ Additional exTHmUI functions:
 - mka:             Builds using SCHED_BATCH on all processors.
 - mkap:            Builds the module(s) using mka and pushes them to the device.
 - cmka:            Cleans and builds using mka.
+- repopick:        Utility to fetch changes from LineageOS Gerrit.
 - repolastsync:    Prints date and time of last repo sync.
 - reposync:        Parallel repo sync using ionice and SCHED_BATCH.
 - sort-blobs-list: Sort proprietary-files.txt sections with LC_ALL=C.
@@ -81,6 +82,11 @@ function repolastsync() {
     RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
     RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
     echo "Last repo sync: $RLSLOCAL / $RLSUTC"
+}
+
+function repopick() {
+    T=$(gettop)
+    $T/vendor/exthm/build/tools/repopick.py $@
 }
 
 function reposync() {
