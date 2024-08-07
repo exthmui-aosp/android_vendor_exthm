@@ -11,6 +11,10 @@ $(call inherit-product, vendor/exthm/config/common.mk)
 PRODUCT_COPY_FILES += \
     vendor/exthm/prebuilt/etc/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
 
+# Display
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    debug.sf.frame_rate_multiple_threshold=60
+
 # Telephony packages
 PRODUCT_PACKAGES += \
     messaging \
