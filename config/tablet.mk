@@ -10,5 +10,4 @@ $(call inherit-product, vendor/exthm/config/common.mk)
 # Telephony packages
 PRODUCT_PACKAGES += \
     messaging \
-    Stk \
-    YellowPage
+    Stk
