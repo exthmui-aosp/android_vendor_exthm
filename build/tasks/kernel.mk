@@ -487,7 +487,7 @@ $(TARGET_PREBUILT_INT_KERNEL): $(KERNEL_CONFIG) $(DEPMOD) $(DTC)
 			filtered_modules=""; \
 			$(if $(SYSTEM_KERNEL_MODULES),\
 				gki_modules=$$(for m in $(SYSTEM_KERNEL_MODULES); do \
-					p=$$(find $$kernel_modules_dir -type f -name $$m); \
+					p=$$(echo $$all_modules | tr ' ' '\n' | grep /$$m); \
 					if [ -n "$$p" ]; then echo $$p; else echo "ERROR: $$m from SYSTEM_KERNEL_MODULES was not found" 1>&2 && exit 1; fi; \
 				done); \
 				[ $$? -ne 0 ] && exit 1; \
