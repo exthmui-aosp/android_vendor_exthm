@@ -1,10 +1,7 @@
-# Inherit common Lineage stuff
-$(call inherit-product, vendor/lineage/config/common_mobile.mk)
+# Inherit common Exthm stuff
+$(call inherit-product, vendor/exthm/config/common_mobile.mk)
 
 PRODUCT_SIZE := full
-
-PRODUCT_PACKAGES += \
-    Aperture
 
 # Extra cmdline tools
 PRODUCT_PACKAGES += \

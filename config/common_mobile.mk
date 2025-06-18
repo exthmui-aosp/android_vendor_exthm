@@ -1,5 +1,5 @@
-# Inherit common mobile Lineage stuff
-$(call inherit-product, vendor/lineage/config/common.mk)
+# Inherit common mobile Exthm stuff
+$(call inherit-product, vendor/exthm/config/common.mk)
 
 # Media
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \

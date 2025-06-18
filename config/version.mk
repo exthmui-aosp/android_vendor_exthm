@@ -1,45 +1,24 @@
-PRODUCT_VERSION_MAJOR = 22
-PRODUCT_VERSION_MINOR = 2
+EXTHM_BUILD_TYPE ?= Unofficial
+EXTHM_VERSION := baka 
 
-ifeq ($(LINEAGE_VERSION_APPEND_TIME_OF_DAY),true)
-    LINEAGE_BUILD_DATE := $(shell date -u +%Y%m%d_%H%M%S)
-else
-    LINEAGE_BUILD_DATE := $(shell date -u +%Y%m%d)
-endif
+# Set EXTHM_BUILDTYPE from the env RELEASE_TYPE, for jenkins compat
+EXTHM_DATE_YEAR := $(shell date -u +%Y)
+EXTHM_DATE_MONTH := $(shell date -u +%m)
+EXTHM_DATE_DAY := $(shell date -u +%d)
+EXTHM_DATE_HOUR := $(shell date -u +%H)
+EXTHM_DATE_MINUTE := $(shell date -u +%M)
 
-# Set LINEAGE_BUILDTYPE from the env RELEASE_TYPE, for jenkins compat
-
-ifndef LINEAGE_BUILDTYPE
-    ifdef RELEASE_TYPE
-        # Starting with "LINEAGE_" is optional
-        RELEASE_TYPE := $(shell echo $(RELEASE_TYPE) | sed -e 's|^LINEAGE_||g')
-        LINEAGE_BUILDTYPE := $(RELEASE_TYPE)
-    endif
-endif
-
-# Filter out random types, so it'll reset to UNOFFICIAL
-ifeq ($(filter RELEASE NIGHTLY SNAPSHOT EXPERIMENTAL,$(LINEAGE_BUILDTYPE)),)
-    LINEAGE_BUILDTYPE := UNOFFICIAL
-    LINEAGE_EXTRAVERSION :=
-endif
-
-ifeq ($(LINEAGE_BUILDTYPE), UNOFFICIAL)
-    ifneq ($(TARGET_UNOFFICIAL_BUILD_ID),)
-        LINEAGE_EXTRAVERSION := -$(TARGET_UNOFFICIAL_BUILD_ID)
-    endif
-endif
-
-LINEAGE_VERSION_SUFFIX := $(LINEAGE_BUILD_DATE)-$(LINEAGE_BUILDTYPE)$(LINEAGE_EXTRAVERSION)-$(LINEAGE_BUILD)
-
-# Internal version
-LINEAGE_VERSION := $(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR)-$(LINEAGE_VERSION_SUFFIX)
+EXTHM_BUILD_DATE_UTC := $(shell date -d '$(EXTHM_DATE_YEAR)-$(EXTHM_DATE_MONTH)-$(EXTHM_DATE_DAY) $(EXTHM_DATE_HOUR):$(EXTHM_DATE_MINUTE)' -u +%s)
 
 # Display version
-LINEAGE_DISPLAY_VERSION := $(PRODUCT_VERSION_MAJOR)-$(LINEAGE_VERSION_SUFFIX)
+EXTHM_DISPLAY_VERSION := Exthm-$(EXTHM_VERSION)-$(shell date +%Y%m%d)-$(EXTHM_BUILD)-$(EXTHM_BUILD_TYPE)
 
-# LineageOS version properties
+# Platform Display version
+EXTHM_PLATFORM_DISPLAY_VERSION := $(EXTHM_VERSION)-$(shell date +%Y%m%d)-$(EXTHM_BUILD)-$(EXTHM_BUILD_TYPE)
+
+# Exthm version properties
 PRODUCT_SYSTEM_PROPERTIES += \
-    ro.lineage.version=$(LINEAGE_VERSION) \
-    ro.lineage.display.version=$(LINEAGE_DISPLAY_VERSION) \
-    ro.lineage.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
-    ro.lineage.releasetype=$(LINEAGE_BUILDTYPE)
+    ro.exthm.version=$(EXTHM_VERSION) \
+    ro.exthm.display.version=$(EXTHM_DISPLAY_VERSION) \
+    ro.exthm.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
+    ro.exthm.releasetype=$(EXTHM_BUILDTYPE)
