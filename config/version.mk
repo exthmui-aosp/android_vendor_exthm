@@ -1,5 +1,5 @@
 EXTHM_BUILD_TYPE ?= Unofficial
-EXTHM_VERSION := baka 
+EXTHM_VERSION := baka
 
 # Set EXTHM_BUILDTYPE from the env RELEASE_TYPE, for jenkins compat
 EXTHM_DATE_YEAR := $(shell date -u +%Y)
