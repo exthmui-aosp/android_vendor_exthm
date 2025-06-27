@@ -1,5 +1,7 @@
 PRODUCT_BRAND ?= Exthm-UI 
 
+-include vendor/gms/products/gms.mk
+
 ifeq ($(PRODUCT_GMS_CLIENTID_BASE),)
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.com.google.clientidbase=android-google
@@ -169,6 +171,8 @@ PRODUCT_EXTRA_RECOVERY_KEYS += \
     vendor/exthm/build/target/product/security/exthm
 
 include vendor/exthm/config/version.mk
+
+-include device/lineage/sepolicy/common/sepolicy.mk
 
 -include vendor/exthm-priv/keys/keys.mk
 
