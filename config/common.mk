@@ -1,3 +1,6 @@
+# exThmUI's common configuration file.
+$(call inherit-product-if-exists, vendor/exthm/config/exthm.mk)
+
 PRODUCT_BRAND ?= Exthm-UI 
 
 ifeq ($(PRODUCT_GMS_CLIENTID_BASE),)
